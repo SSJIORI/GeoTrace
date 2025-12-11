@@ -26,6 +26,11 @@ const LoginForm: React.FC = () => {
     }
   };
 
+  const fillTestCredentials = () => {
+    setEmail('test@example.com');
+    setPassword('password123');
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
@@ -83,9 +88,13 @@ const LoginForm: React.FC = () => {
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In'}
           </button>
 
-          <p className="text-center text-sm text-slate-400">
-             Use test@example.com / password123
-          </p>
+          <button
+            type="button"
+            onClick={fillTestCredentials}
+            className="w-full text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+          >
+            Use test@example.com / password123
+          </button>
         </form>
       </div>
     </div>

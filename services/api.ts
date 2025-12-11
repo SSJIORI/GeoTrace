@@ -1,63 +1,76 @@
 import axios from 'axios';
 import { LoginResponse, SearchHistoryItem, GeoData } from '../types';
 
-// MOCK API IMPLEMENTATION (Frontend Only Mode)
-// The backend requirement has been temporarily removed.
-// We are using LocalStorage to simulate database operations.
+// API Base URL - Change this to your deployed backend URL in production
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-const STORAGE_KEY = 'geo_trace_history';
-
-// Helper to simulate network latency
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-export const login = async (email: string, password: string): Promise<LoginResponse> => {
-  await delay(800); // Simulate network request
-  
-  // Simple mock validation
-  if (email === 'test@example.com' && password === 'password123') {
-    const user = { id: 'user_123', email, token: 'mock_jwt_token_' + Date.now() };
-    return { user, token: user.token! };
+// Create axios instance with default config
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json'
   }
-  
-  // Mimic Axios error structure
-  throw { 
-    response: { 
-      data: { 
-        message: 'Invalid credentials. Try test@example.com / password123' 
-      } 
-    } 
-  };
+});
+
+// Add auth token to requests if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Login function
+export const login = async (email: string, password: string): Promise<LoginResponse> => {
+  try {
+    const response = await api.post('/api/auth/login', { email, password });
+    return response.data;
+  } catch (error: any) {
+    // Re-throw with consistent error structure
+    throw error;
+  }
 };
 
+// Fetch user's search history
 export const fetchHistory = async (): Promise<SearchHistoryItem[]> => {
-  await delay(500);
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+  try {
+    const response = await api.get('/api/history');
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to fetch history:', error);
+    return []; // Return empty array on error
+  }
 };
 
+// Save a new search to history
 export const saveSearch = async (ip: string, geoData: GeoData): Promise<SearchHistoryItem> => {
-  await delay(300);
-  
-  const newItem: SearchHistoryItem = {
-    id: Date.now().toString() + Math.random().toString(36).substring(2),
-    searched_ip: ip,
-    geo_data: geoData,
-    created_at: new Date().toISOString()
-  };
-
-  const currentHistory = await fetchHistory();
-  // Limit history to last 50 items to prevent localStorage bloat
-  const updatedHistory = [newItem, ...currentHistory].slice(0, 50);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
-  
-  return newItem;
+  try {
+    const response = await api.post('/api/history', {
+      searched_ip: ip,
+      geo_data: geoData
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to save search:', error);
+    // Return a local-only entry if save fails
+    return {
+      id: Date.now().toString(),
+      searched_ip: ip,
+      geo_data: geoData,
+      created_at: new Date().toISOString()
+    };
+  }
 };
 
+// Delete search history entries
 export const deleteHistory = async (ids: string[]): Promise<void> => {
-  await delay(300);
-  const currentHistory = await fetchHistory();
-  const updatedHistory = currentHistory.filter(item => !ids.includes(item.id));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
+  try {
+    await api.delete('/api/history', { data: { ids } });
+  } catch (error: any) {
+    console.error('Failed to delete history:', error);
+    throw error;
+  }
 };
 
 // External IP Info API (Real external call)

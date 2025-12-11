@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchHistory, saveSearch, fetchIpInfo, deleteHistory } from '../services/api';
 import { GeoData, SearchHistoryItem } from '../types';
 import MapComponent from './MapComponent';
-import { Search, MapPin, History, Trash2, LogOut, Globe, X } from 'lucide-react';
+import { Search, MapPin, History, Trash2, LogOut, Globe, X, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
@@ -12,6 +12,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [myIpGeo, setMyIpGeo] = useState<GeoData | null>(null);
   const navigate = useNavigate();
 
   // Load initial state
@@ -22,6 +23,7 @@ const Dashboard: React.FC = () => {
         // Fetch current user IP
         const myGeo = await fetchIpInfo();
         setCurrentGeo(myGeo);
+        setMyIpGeo(myGeo);
         // Fetch history
         const hist = await fetchHistory();
         setHistory(hist);
@@ -58,18 +60,16 @@ const Dashboard: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const handleClear = async () => {
+  const handleClear = () => {
     setSearchIp('');
     setError(null);
-    setLoading(true);
-    try {
-      const myGeo = await fetchIpInfo();
-      setCurrentGeo(myGeo);
-    } catch (err) {
-        console.error(err);
-    } finally {
-      setLoading(false);
+  };
+
+  const handleReset = () => {
+    setSearchIp('');
+    setError(null);
+    if (myIpGeo) {
+      setCurrentGeo(myIpGeo);
     }
   };
 
@@ -113,7 +113,7 @@ const Dashboard: React.FC = () => {
           <div className="bg-primary-500 p-2 rounded-lg text-white">
             <Globe className="w-5 h-5" />
           </div>
-          <h1 className="text-xl font-bold text-slate-800">GeoTrace Pro</h1>
+          <h1 className="text-xl font-bold text-slate-800">GeoTrace</h1>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-slate-500 hidden sm:block">
@@ -230,8 +230,16 @@ const Dashboard: React.FC = () => {
              >
                 {loading ? 'Locating...' : 'Track IP'}
              </button>
+             <button 
+                onClick={handleReset}
+                disabled={loading}
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3.5 rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-70 disabled:active:scale-100 whitespace-nowrap flex items-center gap-2"
+                title="Reset to my IP"
+             >
+                <RotateCcw className="w-4 h-4" />
+                Reset
+             </button>
            </div>
-
            {/* Info Cards */}
            {currentGeo && (
              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 max-w-5xl mx-auto w-full">
