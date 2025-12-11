@@ -1,11 +1,37 @@
-<div align="center">
+# GeoTrace Pro (Frontend Demo)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+A React-based IP Geolocation and History tracking application. 
 
-  <h1>Built with AI Studio</h2>
+**Note:** This version operates in "Frontend Only" mode using LocalStorage to mock backend persistence.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## Prerequisites
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+- Node.js (v16+)
 
-</div>
+## Setup Instructions
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Run the development server:
+   ```bash
+   npm run dev
+   ```
+3. Open `http://localhost:5173`.
+
+### Usage
+
+1. **Login**: Use `test@example.com` / `password123`.
+2. **Dashboard**:
+   - The map loads your current location.
+   - Enter an IP (e.g., `8.8.8.8`) to track it.
+   - View search history in the sidebar (persisted in browser LocalStorage).
+   - Bulk delete history items.
+
+## Technologies
+
+- React (Vite)
+- Tailwind CSS
+- Leaflet Maps
+- Axios

@@ -1,0 +1,7 @@
+{
+  "name": "GeoTrace Pro",
+  "description": "A full-stack IP geolocation tracking application with search history and interactive mapping.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
