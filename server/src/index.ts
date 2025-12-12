@@ -11,12 +11,21 @@ const PORT = process.env.PORT || 8000;
 
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    process.env.FRONTEND_URL
-  ].filter(Boolean) as string[],
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://localhost:3001',
+      process.env.FRONTEND_URL
+    ];
+    
+    // Allow Vercel preview/production deployments
+    if (!origin || allowedOrigins.includes(origin) || origin.includes('vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());

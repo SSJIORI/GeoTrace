@@ -41,7 +41,7 @@ Add these variables for **Production, Preview, and Development**:
 
 ```
 SUPABASE_URL=https://ykbdznyjlzezyonlktyb.supabase.co
-SUPABASE_ANON_KEY=your_anon_key_here
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrYmR6bnlqbHplenlvbmxrdHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTkxNTgsImV4cCI6MjA4MTAzNTE1OH0.OXbQLmG3S5S766yjvlWLb6lJ1vreDSbEwQu97WkuGFw
 SUPABASE_SERVICE_KEY=sb_secret_m01M8oXyQ6roGY8FuGAAxQ_xtwVpX19
 JWT_SECRET=geotrace_jwt_secret_key_change_in_production_2024
 NODE_ENV=production
