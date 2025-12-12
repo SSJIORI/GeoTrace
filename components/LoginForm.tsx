@@ -33,48 +33,48 @@ const LoginForm: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
-        <div className="text-center mb-8">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-slate-100">
+        <div className="text-center mb-6 md:mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary-100 text-primary-600 mb-4">
             <Lock className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-800">Welcome Back</h2>
-          <p className="text-slate-500 mt-2">Sign in to access your GeoTrace dashboard</p>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-800">Welcome Back</h2>
+          <p className="text-sm md:text-base text-slate-500 mt-2">Sign in to access your GeoTrace dashboard</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
-              {error}
+            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-xs md:text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{error}</span>
             </div>
           )}
           
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Email Address</label>
+            <label className="text-xs md:text-sm font-medium text-slate-700">Email Address</label>
             <div className="relative">
-              <Mail className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 md:w-5 md:h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-slate-700 placeholder-slate-400"
+                className="w-full pl-9 md:pl-10 pr-4 py-2.5 md:py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-sm md:text-base text-slate-700 placeholder-slate-400"
                 placeholder="you@example.com"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Password</label>
+            <label className="text-xs md:text-sm font-medium text-slate-700">Password</label>
             <div className="relative">
-              <Lock className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 md:w-5 md:h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-slate-700 placeholder-slate-400"
+                className="w-full pl-9 md:pl-10 pr-4 py-2.5 md:py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all text-sm md:text-base text-slate-700 placeholder-slate-400"
                 placeholder="••••••••"
               />
             </div>
@@ -83,7 +83,7 @@ const LoginForm: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-primary-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white font-semibold py-3 md:py-3.5 rounded-xl transition-all shadow-lg shadow-primary-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base"
           >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In'}
           </button>
@@ -91,7 +91,7 @@ const LoginForm: React.FC = () => {
           <button
             type="button"
             onClick={fillTestCredentials}
-            className="w-full text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+            className="w-full text-xs md:text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors py-2"
           >
             Use test@example.com / password123
           </button>

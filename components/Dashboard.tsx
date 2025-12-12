@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchHistory, saveSearch, fetchIpInfo, deleteHistory } from '../services/api';
 import { GeoData, SearchHistoryItem } from '../types';
 import MapComponent from './MapComponent';
-import { Search, MapPin, History, Trash2, LogOut, Globe, X, RotateCcw } from 'lucide-react';
+import { Search, MapPin, History, Trash2, LogOut, Globe, X, RotateCcw, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
@@ -13,6 +13,7 @@ const Dashboard: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [myIpGeo, setMyIpGeo] = useState<GeoData | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   // Load initial state
@@ -97,6 +98,7 @@ const Dashboard: React.FC = () => {
   const handleHistoryClick = (item: SearchHistoryItem) => {
     setCurrentGeo(item.geo_data);
     setSearchIp(item.searched_ip);
+    setSidebarOpen(false);
   };
 
   const handleLogout = () => {
@@ -108,15 +110,22 @@ const Dashboard: React.FC = () => {
   return (
     <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
       {/* Navbar */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm z-10">
+      <header className="bg-white border-b border-slate-200 px-4 md:px-6 py-4 flex items-center justify-between shadow-sm z-10">
         <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            title="Toggle menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
           <div className="bg-primary-500 p-2 rounded-lg text-white">
             <Globe className="w-5 h-5" />
           </div>
-          <h1 className="text-xl font-bold text-slate-800">GeoTrace</h1>
+          <h1 className="text-lg md:text-xl font-bold text-slate-800">GeoTrace</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-500 hidden sm:block">
+        <div className="flex items-center gap-2 md:gap-4">
+          <span className="text-xs md:text-sm text-slate-500 hidden sm:block truncate max-w-[120px] md:max-w-none">
             {localStorage.getItem('user_email')}
           </span>
           <button 
@@ -124,20 +133,41 @@ const Dashboard: React.FC = () => {
             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
             title="Logout"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Mobile Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        
         {/* Sidebar */}
-        <aside className="w-80 bg-white border-r border-slate-200 flex flex-col z-10">
+        <aside className={`
+          w-full lg:w-80 bg-white border-r border-slate-200 flex flex-col z-40
+          fixed lg:static top-0 bottom-0 lg:inset-y-0 left-0 transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          lg:mt-0
+        `}>
           <div className="p-4 border-b border-slate-100">
              <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold text-slate-700 flex items-center gap-2">
                   <History className="w-4 h-4 text-primary-500" />
                   Search History
                 </h2>
+                <button 
+                  onClick={() => setSidebarOpen(false)}
+                  className="lg:hidden p-1 text-slate-400 hover:text-slate-600 rounded"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+             </div>
+             <div className="flex items-center justify-between">
                 {selectedIds.size > 0 && (
                   <button 
                     onClick={handleBulkDelete}
@@ -194,74 +224,93 @@ const Dashboard: React.FC = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 flex flex-col relative overflow-hidden bg-slate-50/50">
+        <main className="flex-1 p-4 md:p-6 flex flex-col relative overflow-hidden bg-slate-50/50 z-10">
            {/* Search Bar */}
-           <div className="mb-6 flex flex-col sm:flex-row gap-4 max-w-3xl mx-auto w-full z-20">
-             <div className="flex-1 relative">
-                <form onSubmit={handleSearch} className="relative">
-                    <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                    <input
-                        type="text"
-                        value={searchIp}
-                        onChange={(e) => setSearchIp(e.target.value)}
-                        placeholder="Enter IP address (e.g. 8.8.8.8)"
-                        className={`w-full pl-12 pr-12 py-3.5 rounded-2xl border bg-white shadow-sm outline-none focus:ring-2 transition-all ${error ? 'border-red-300 focus:ring-red-100' : 'border-slate-200 focus:border-primary-400 focus:ring-primary-100'}`}
-                    />
-                    {searchIp && (
-                        <button 
-                            type="button"
-                            onClick={handleClear}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    )}
-                </form>
-                {error && (
-                    <div className="absolute top-full left-0 mt-2 text-xs text-red-500 bg-red-50 px-2 py-1 rounded">
-                        {error}
-                    </div>
-                )}
+           <div className="mb-4 md:mb-6 flex flex-col md:flex-row gap-3 md:gap-4 max-w-3xl mx-auto w-full z-20">
+             <div className="flex gap-2 flex-1">
+               <div className="flex-1 relative">
+                  <form onSubmit={handleSearch} className="relative">
+                      <Search className="w-4 h-4 md:w-5 md:h-5 text-slate-400 absolute left-3 md:left-4 top-1/2 -translate-y-1/2" />
+                      <input
+                          type="text"
+                          value={searchIp}
+                          onChange={(e) => setSearchIp(e.target.value)}
+                          placeholder="Enter IP address (e.g. 8.8.8.8)"
+                          className={`w-full pl-10 md:pl-12 pr-10 md:pr-12 py-3 md:py-3.5 rounded-xl md:rounded-2xl border bg-white shadow-sm outline-none focus:ring-2 transition-all text-sm md:text-base ${error ? 'border-red-300 focus:ring-red-100' : 'border-slate-200 focus:border-primary-400 focus:ring-primary-100'}`}
+                      />
+                      {searchIp && (
+                          <button 
+                              type="button"
+                              onClick={handleClear}
+                              className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                          >
+                              <X className="w-4 h-4" />
+                          </button>
+                      )}
+                  </form>
+                  {error && (
+                      <div className="absolute top-full left-0 mt-2 text-xs text-red-500 bg-red-50 px-2 py-1 rounded">
+                          {error}
+                      </div>
+                  )}
+               </div>
+               <button 
+                  onClick={handleReset}
+                  disabled={loading}
+                  className="md:hidden bg-slate-100 hover:bg-slate-200 text-slate-700 p-3 rounded-xl font-medium transition-all active:scale-95 disabled:opacity-70 disabled:active:scale-100 flex items-center justify-center"
+                  title="Reset to my IP"
+               >
+                  <RotateCcw className="w-5 h-5" />
+               </button>
              </div>
              <button 
                 onClick={handleSearch}
                 disabled={loading}
-                className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3.5 rounded-2xl font-medium shadow-lg shadow-primary-200 transition-all active:scale-95 disabled:opacity-70 disabled:active:scale-100 whitespace-nowrap"
+                className="md:hidden w-full bg-primary-600 hover:bg-primary-700 text-white px-4 py-3 rounded-xl font-medium shadow-lg shadow-primary-200 transition-all active:scale-95 disabled:opacity-70 disabled:active:scale-100 text-sm"
              >
                 {loading ? 'Locating...' : 'Track IP'}
              </button>
-             <button 
-                onClick={handleReset}
-                disabled={loading}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3.5 rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-70 disabled:active:scale-100 whitespace-nowrap flex items-center gap-2"
-                title="Reset to my IP"
-             >
-                <RotateCcw className="w-4 h-4" />
-                Reset
-             </button>
+             <div className="hidden md:flex gap-3">
+               <button 
+                  onClick={handleSearch}
+                  disabled={loading}
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3.5 rounded-2xl font-medium shadow-lg shadow-primary-200 transition-all active:scale-95 disabled:opacity-70 disabled:active:scale-100 whitespace-nowrap"
+               >
+                  {loading ? 'Locating...' : 'Track IP'}
+               </button>
+               <button 
+                  onClick={handleReset}
+                  disabled={loading}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3.5 rounded-2xl font-medium transition-all active:scale-95 disabled:opacity-70 disabled:active:scale-100 whitespace-nowrap flex items-center justify-center gap-2"
+                  title="Reset to my IP"
+               >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+               </button>
+             </div>
            </div>
            {/* Info Cards */}
            {currentGeo && (
-             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 max-w-5xl mx-auto w-full">
-                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                    <p className="text-xs text-slate-400 uppercase font-semibold">IP Address</p>
-                    <p className="font-mono text-slate-700 font-medium">{currentGeo.ip}</p>
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6 max-w-5xl mx-auto w-full">
+                <div className="bg-white p-3 md:p-4 rounded-xl border border-slate-100 shadow-sm">
+                    <p className="text-[10px] md:text-xs text-slate-400 uppercase font-semibold mb-1">IP Address</p>
+                    <p className="font-mono text-xs md:text-sm text-slate-700 font-medium truncate">{currentGeo.ip}</p>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                    <p className="text-xs text-slate-400 uppercase font-semibold">Location</p>
-                    <p className="text-slate-700 font-medium truncate" title={`${currentGeo.city}, ${currentGeo.country}`}>
+                <div className="bg-white p-3 md:p-4 rounded-xl border border-slate-100 shadow-sm">
+                    <p className="text-[10px] md:text-xs text-slate-400 uppercase font-semibold mb-1">Location</p>
+                    <p className="text-xs md:text-sm text-slate-700 font-medium truncate" title={`${currentGeo.city}, ${currentGeo.country}`}>
                         {currentGeo.city}, {currentGeo.country}
                     </p>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                    <p className="text-xs text-slate-400 uppercase font-semibold">ISP / Org</p>
-                    <p className="text-slate-700 font-medium truncate" title={currentGeo.org}>
+                <div className="bg-white p-3 md:p-4 rounded-xl border border-slate-100 shadow-sm">
+                    <p className="text-[10px] md:text-xs text-slate-400 uppercase font-semibold mb-1">ISP / Org</p>
+                    <p className="text-xs md:text-sm text-slate-700 font-medium truncate" title={currentGeo.org}>
                         {currentGeo.org || 'N/A'}
                     </p>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                    <p className="text-xs text-slate-400 uppercase font-semibold">Timezone</p>
-                    <p className="text-slate-700 font-medium">
+                <div className="bg-white p-3 md:p-4 rounded-xl border border-slate-100 shadow-sm">
+                    <p className="text-[10px] md:text-xs text-slate-400 uppercase font-semibold mb-1">Timezone</p>
+                    <p className="text-xs md:text-sm text-slate-700 font-medium truncate">
                         {currentGeo.timezone || 'UTC'}
                     </p>
                 </div>
